@@ -79,10 +79,10 @@
 
         <nav class="pagination" role="pagination">
             {{if ne .paginate.Last .paginate.Current}}
-                <a class="pull-left" href="/?page={{.paginate.Last}}">← Prev Page</a>
+                <a class="pull-left" href="/?page={{.paginate.Last}}">← 上一页</a>
             {{end}}
             {{if ne .paginate.Next .paginate.Current}}
-                <a class="pull-right" href="/?page={{.paginate.Next}}">Next Page →</a>
+                <a class="pull-right" href="/?page={{.paginate.Next}}">下一页 →</a>
             {{end}}
         </nav>
     </div>
