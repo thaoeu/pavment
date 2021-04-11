@@ -108,11 +108,11 @@ $$          $$$o       "o$$o$"$$"$$o$$o$$"$$o"       $$$          ""o
     </div>
     <!-- Lists in Slidebars -->
     <ul class="sb-menu">
-        <li><a href="/" class="animsition-link" title="Home">Home</a></li>
+        <li><a href="/" class="animsition-link" title="Home">首页</a></li>
         <!-- Dropdown Menu -->
 
         <li>
-            <a class="sb-toggle-submenu">Tags<span class="sb-caret"></span></a>
+            <a class="sb-toggle-submenu">相关<span class="sb-caret"></span></a>
             <ul class="sb-submenu">
                 {{ range $i,$tag := .tags }}
                     <li><a href="/tags/{{$tag.Name}}" target="_BLANK" class="animsition-link">{{$tag.DisplayName}}<small>({{$tag.Num}})</small></a></li>
@@ -122,7 +122,7 @@ $$          $$$o       "o$$o$"$$"$$o$$o$$"$$o"       $$$          ""o
 
 
         <li>
-            <a class="sb-toggle-submenu">Categories<span class="sb-caret"></span></a>
+            <a class="sb-toggle-submenu">分类<span class="sb-caret"></span></a>
             <ul class="sb-submenu">
                 {{ range $i,$cate := .cates }}
                     <li><a href="/categories/{{$cate.Cates.Name}}" class="animsition-link">{{ $cate.Html}}{{$cate.Cates.DisplayName}}</a></li>
@@ -132,7 +132,7 @@ $$          $$$o       "o$$o$"$$"$$o$$o$$"$$o"       $$$          ""o
 
 
         <li>
-            <a class="sb-toggle-submenu">Links<span class="sb-caret"></span></a>
+            <a class="sb-toggle-submenu">违章查询<span class="sb-caret"></span></a>
             <ul class="sb-submenu">
                 {{ range $i,$link := .links }}
                     <li><a href="{{$link.Link}}" target="_BLANK" class="animsition-link">{{$link.Name}}</a></li>
@@ -143,10 +143,8 @@ $$          $$$o       "o$$o$"$$"$$o$$o$$"$$o"       $$$          ""o
     </ul>
     <!-- Lists in Slidebars -->
     <ul class="sb-menu secondary">
-        <li><a href="/detail/1" class="animsition-link" title="about">About</a></li>
 {{/*        <li><a href="atom.xml" class="animsition-link" title="rss">RSS</a></li>*/}}
-        <li><a href="/rss" class="animsition-link" title="Rss">Rss</a></li>
-        <li><a href="/archives" class="animsition-link" title="Archives">Archives</a></li>
+<!--        <li><a href="/rss" class="animsition-link" title="Rss">Rss</a></li>-->
 
     </ul>
 </div>
@@ -184,7 +182,7 @@ $$          $$$o       "o$$o$"$$"$$o$$o$$"$$o"       $$$          ""o
                 <!--// Info-bar -->
             </div>
             <!-- // .container -->
-            <div class="learnmore sb-toggle-right">More</div>
+            <div class="learnmore sb-toggle-right">菜单</div>
             <button type="button" class="navbar-toggle menu-icon sb-toggle-right" title="More">
                 <span class="sr-only">Toggle navigation</span>
                 <span class="icon-bar before"></span>
@@ -227,28 +225,16 @@ $$          $$$o       "o$$o$"$$"$$o$$o$$"$$o"       $$$          ""o
 
     <footer>
         <div class="container">
-            <div>
-                <p>欢迎加入PHP交流群(QQ群号):440221268</p>
-            </div>
-            <div>
-                <p>欢迎加入Golang交流群(QQ群号):423069874</p>
+			<div style="color:#F00" onclick="window.location.href= 'https://beian.miit.gov.cn';return false">
+				黑ICP备19007841号-2
             </div>
         </div>
         <div class="container">
             <div class="copy">
-                <p>
-                    &copy; 2014<script>new Date().getFullYear()>2010&&document.write("-"+new Date().getFullYear());</script>, Content By 叶落山城. All Rights Reserved.
+                <p style="color:#F00">
+                    &copy; 2020<script>new Date().getFullYear()>2010&&document.write("-"+new Date().getFullYear());</script>, 道路交通管理系统 By 单琦俊.
                     <a style="color: #666;" target="_blank" href="http://www.beian.miit.gov.cn/">{{ .system.RecordNumber }}</a>
                 </p>
-
-            </div>
-            <div class="social">
-                <ul>
-                    <li><a href="https://github.com/izghua" title="Github" target="_blank"><i class="icon-github"></i></a>&nbsp;</li>
-                    <li><a href="http://weibo.com/ylsc633" title="Sina-Weibo" target="_blank"><i class="icon-sina-weibo"></i></a>&nbsp;</li>
-                </ul>
-
-            </div>
 
             <div class="clearfix"> </div>
         </div>
