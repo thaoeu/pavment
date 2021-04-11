@@ -26,17 +26,7 @@
             {{ .post.Post.Content}}
             <div class="clearfix"></div>
             <hr class="nogutter">
-                <span style="color: #19A1F9">道路交通管理系统（仅供学习使用，非官网）<a style="color: #19A1F9" href="/detail/{{.post.Post.Id}}/">http://www.thaoeu.site/{{.post.Post.Id}}/</a></span>
-            <hr class="nogutter">
-                <blockquote>
-					<span>道路交通管理系统（仅供学习使用，非官网）</span>
-                </blockquote>
-                <ul>
-                    <li>
-                        <span style="color: #3344de">道路交通管理系统（仅供学习使用，非官网） <a style="color: #f91919" href="http://github.com/thaoeu/pavment_management_system">https://github.com/thaoeu/pavment_management_system</a></span>
-                    </li>
-                    <li>
-                        <span style="color: #3344de">道路交通管理系统（仅供学习使用，非官网） <a style="color: #f91919" href="https://github.com/thaoeu/pavment_management_system">https://github.com/thaoeu/pavment_management_system</a></span>
+                        <span style="color: #3344de">道路交通管理系统（仅供学习使用，非官网） <a style="color: #f91919" href="https://github.com/thaoeu/pavment_management_system">仓库地址</a></span>
                     </li>
                 </ul>
             <hr class="nogutter">
@@ -69,37 +59,5 @@
     </section>
 
     <div>
-        <script src="{{.themeShareJs}}/social-share.min.js" ></script>
-        <script>
-            var $config = {
-                title               : {{ .psot.Post.Title }},
-                description         : {{ .psot.Post.Summary }},
-                wechatQrcodeTitle   : "微信扫一扫：分享", // 微信二维码提示文字
-                wechatQrcodeHelper  : '<p>微信里点“发现”，扫一下</p><p>二维码便可将本文分享至朋友圈.。</p>',
-                disabled            : ['facebook', 'twitter'],
-            };
-            socialShare('.social-share', $config);
-        </script>
-        <div class="col-md-8 col-md-offset-2 col-sm-24">
-            <div id="container"></div>
-            <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
-            <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
-            <script>
-                const gitalk = new Gitalk({
-                    clientID: {{ .github.GithubClientId }},
-                    clientSecret: {{ .github.GithubClientSecret }},
-                    repo: {{ .github.GithubRepo }},
-                    owner: {{ .github.GithubName }},
-                    admin: [{{ .github.GithubName }}],
-                    id: "{{ .post.Post.Id }}",      // Ensure uniqueness and length less than 50
-                    distractionFreeMode: false,  // Facebook-like distraction free mode
-                    labels: [{{ .github.GithubLabels }}], //因为以前用的是 gitment,现在是gitalk,labels不是 或 的关系.. 所以只能显示这个了
-                    title: {{ .post.Post.Title }},
-                    body: location.href
-                });
-                gitalk.render('gitalk-container');
-            </script>
-            </div>
-    </div>
 
 {{end}}
