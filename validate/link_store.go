@@ -8,16 +8,17 @@ package validate
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/izghua/go-blog/common"
-	"github.com/izghua/zgh/gin/api"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"github.com/izghua/zgh/gin/api"
+	"github.com/thaoeu/pavment_management_system/common"
 )
 
 type LinkStoreV struct {
 }
 
-func (lv *LinkStoreV)MyValidate() gin.HandlerFunc {
+func (lv *LinkStoreV) MyValidate() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		appG := api.Gin{C: c}
 		var json common.LinkStore
@@ -28,33 +29,31 @@ func (lv *LinkStoreV)MyValidate() gin.HandlerFunc {
 		}
 
 		reqValidate := &LinkStore{
-			Name:json.Name,
-			Link:json.Link,
-			Order:json.Order,
+			Name:  json.Name,
+			Link:  json.Link,
+			Order: json.Order,
 		}
 		if b := appG.Validate(reqValidate); !b {
-			fmt.Println(reqValidate,json)
+			fmt.Println(reqValidate, json)
 			return
 		}
-		c.Set("json",json)
+		c.Set("json", json)
 		c.Next()
 	}
 }
 
 type LinkStore struct {
-	Name string `valid:"Required;MaxSize(100)"`
-	Link string `valid:"Required;MaxSize(100)"`
-	Order int `valid:"Min(0)"`
+	Name  string `valid:"Required;MaxSize(100)"`
+	Link  string `valid:"Required;MaxSize(100)"`
+	Order int    `valid:"Min(0)"`
 }
-
 
 func (c *LinkStore) Message() map[string]int {
 	return map[string]int{
-		"Name.Required":406000000,
-		"Name.MaxSize":406000001,
-		"Link.Required":406000002,
-		"Link.MaxSize":406000003,
-		"Order.Min":406000004,
+		"Name.Required": 406000000,
+		"Name.MaxSize":  406000001,
+		"Link.Required": 406000002,
+		"Link.MaxSize":  406000003,
+		"Order.Min":     406000004,
 	}
 }
-

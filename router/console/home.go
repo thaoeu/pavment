@@ -7,11 +7,12 @@
 package console
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
-	"github.com/izghua/go-blog/service"
 	"github.com/izghua/zgh"
 	"github.com/izghua/zgh/gin/api"
-	"net/http"
+	"github.com/thaoeu/pavment_management_system/service"
 )
 
 type HomeStatistics struct {
@@ -21,40 +22,40 @@ func NewStatistics() Statistics {
 	return &HomeStatistics{}
 }
 
-func (h *HomeStatistics)Index(c *gin.Context)  {
+func (h *HomeStatistics) Index(c *gin.Context) {
 	appG := api.Gin{C: c}
-	postCnt,err := service.PostCnt()
+	postCnt, err := service.PostCnt()
 	if err != nil {
-		zgh.ZLog().Info("message","console.Home.Index","err",err.Error())
-		appG.Response(http.StatusOK,400001004,nil)
+		zgh.ZLog().Info("message", "console.Home.Index", "err", err.Error())
+		appG.Response(http.StatusOK, 400001004, nil)
 		return
 	}
 
-	cateCnt,err := service.CateCnt()
+	cateCnt, err := service.CateCnt()
 	if err != nil {
-		zgh.ZLog().Info("message","console.Home.Index","err",err.Error())
-		appG.Response(http.StatusOK,400001004,nil)
+		zgh.ZLog().Info("message", "console.Home.Index", "err", err.Error())
+		appG.Response(http.StatusOK, 400001004, nil)
 		return
 	}
 
-	tagCnt,err := service.TagCnt()
+	tagCnt, err := service.TagCnt()
 	if err != nil {
-		zgh.ZLog().Info("message","console.Home.Index","err",err.Error())
-		appG.Response(http.StatusOK,400001004,nil)
+		zgh.ZLog().Info("message", "console.Home.Index", "err", err.Error())
+		appG.Response(http.StatusOK, 400001004, nil)
 		return
 	}
 
-	linkCnt,err := service.LinkCnt()
+	linkCnt, err := service.LinkCnt()
 	if err != nil {
-		zgh.ZLog().Info("message","console.Home.Index","err",err.Error())
-		appG.Response(http.StatusOK,400001004,nil)
+		zgh.ZLog().Info("message", "console.Home.Index", "err", err.Error())
+		appG.Response(http.StatusOK, 400001004, nil)
 		return
 	}
 
-	userCnt,err := service.UserCnt()
+	userCnt, err := service.UserCnt()
 	if err != nil {
-		zgh.ZLog().Info("message","console.Home.Index","err",err.Error())
-		appG.Response(http.StatusOK,400001004,nil)
+		zgh.ZLog().Info("message", "console.Home.Index", "err", err.Error())
+		appG.Response(http.StatusOK, 400001004, nil)
 		return
 	}
 
@@ -65,56 +66,56 @@ func (h *HomeStatistics)Index(c *gin.Context)  {
 	//{ title: '新增互动', icon: 'md-chatbubbles', count: 12, color: '#E46CBB' },
 	//{ title: '新增页面', icon: 'md-map', count: 14, color: '#9A66E4' }
 
-	var data  []interface{}
+	var data []interface{}
 	pcnt := Res{
 		Title: "文章总数",
-		Icon: "ios-book-outline",
+		Icon:  "ios-book-outline",
 		Count: postCnt,
 		Color: "#ff9900",
 	}
-	data = append(data,pcnt)
+	data = append(data, pcnt)
 	ucnt := Res{
 		Title: "用户总数",
-		Icon: "md-person-add",
+		Icon:  "md-person-add",
 		Count: userCnt,
 		Color: "#2d8cf0",
 	}
-	data = append(data,ucnt)
+	data = append(data, ucnt)
 	lcnt := Res{
 		Title: "外链总数",
-		Icon: "ios-link",
+		Icon:  "ios-link",
 		Count: linkCnt,
 		Color: "#E46CBB",
 	}
-	data = append(data,lcnt)
+	data = append(data, lcnt)
 	ccnt := Res{
 		Title: "分类总数",
-		Icon: "md-locate",
+		Icon:  "md-locate",
 		Count: cateCnt,
 		Color: "#19be6b",
 	}
-	data = append(data,ccnt)
+	data = append(data, ccnt)
 	tcnt := Res{
 		Title: "标签总数",
-		Icon: "md-share",
+		Icon:  "md-share",
 		Count: tagCnt,
 		Color: "#39ed14",
 	}
-	data = append(data,tcnt)
+	data = append(data, tcnt)
 	qcnt := Res{
 		Title: "未知BUG",
-		Icon: "ios-bug",
+		Icon:  "ios-bug",
 		Count: 998,
 		Color: "#ed3f14",
 	}
-	data = append(data,qcnt)
-	appG.Response(http.StatusOK,0,data)
+	data = append(data, qcnt)
+	appG.Response(http.StatusOK, 0, data)
 	return
 }
 
 type Res struct {
 	Title string `json:"title"`
-	Icon string `json:"icon"`
-	Count int64 `json:"count"`
+	Icon  string `json:"icon"`
+	Count int64  `json:"count"`
 	Color string `json:"color"`
 }

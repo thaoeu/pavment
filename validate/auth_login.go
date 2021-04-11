@@ -7,10 +7,11 @@
 package validate
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/izghua/go-blog/common"
-	"github.com/izghua/zgh/gin/api"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"github.com/izghua/zgh/gin/api"
+	"github.com/thaoeu/pavment_management_system/common"
 )
 
 type AuthLoginV struct {
@@ -26,35 +27,35 @@ func (av *AuthLoginV) MyValidate() gin.HandlerFunc {
 		}
 
 		reqValidate := &AuthLogin{
-			Email:json.Email,
-			Password:json.Password,
-			Captcha:json.Captcha,
-			CaptchaKey:json.CaptchaKey,
+			Email:      json.Email,
+			Password:   json.Password,
+			Captcha:    json.Captcha,
+			CaptchaKey: json.CaptchaKey,
 		}
 		if b := appG.Validate(reqValidate); !b {
 			return
 		}
-		c.Set("json",json)
+		c.Set("json", json)
 		c.Next()
 	}
 }
 
 type AuthLogin struct {
-	Email string `valid:"Required;Email"`
-	Password string `valid:"Required;MaxSize(30)"`
-	Captcha string `valid:"Required;MaxSize(5)"`
+	Email      string `valid:"Required;Email"`
+	Password   string `valid:"Required;MaxSize(30)"`
+	Captcha    string `valid:"Required;MaxSize(5)"`
 	CaptchaKey string `valid:"Required;MaxSize(30)"`
 }
 
 func (av *AuthLogin) Message() map[string]int {
 	return map[string]int{
-		"Email.Required":407000000,
-		"Email.Email":407000001,
-		"Password.Required":407000002,
-		"Password.MaxSize":407000003,
-		"Captcha.Required":407000004,
-		"Captcha.MaxSize":407000005,
-		"CaptchaKey.Required":407000006,
-		"CaptchaKey.MaxSize":407000007,
+		"Email.Required":      407000000,
+		"Email.Email":         407000001,
+		"Password.Required":   407000002,
+		"Password.MaxSize":    407000003,
+		"Captcha.Required":    407000004,
+		"Captcha.MaxSize":     407000005,
+		"CaptchaKey.Required": 407000006,
+		"CaptchaKey.MaxSize":  407000007,
 	}
 }

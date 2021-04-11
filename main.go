@@ -8,8 +8,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/izghua/go-blog/conf"
-	"github.com/izghua/go-blog/router"
+
+	"github.com/thaoeu/pavment_management_system/conf"
+	"github.com/thaoeu/pavment_management_system/router"
 )
 
 func main() {
@@ -21,5 +22,3 @@ func main() {
 	_ = r.Run(":8081")
 
 }
-
-

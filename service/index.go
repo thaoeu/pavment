@@ -9,78 +9,78 @@ package service
 
 import (
 	"encoding/json"
+	"html/template"
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis"
 	"github.com/gorilla/feeds"
-	"github.com/izghua/go-blog/common"
-	"github.com/izghua/go-blog/conf"
-	"github.com/izghua/go-blog/entity"
 	"github.com/izghua/zgh"
-	"html/template"
-	"strconv"
+	"github.com/thaoeu/pavment_management_system/common"
+	"github.com/thaoeu/pavment_management_system/conf"
+	"github.com/thaoeu/pavment_management_system/entity"
 )
 
 type IndexType string
 
-const  (
-	IndexTypeOne IndexType = "tag"
-	IndexTypeTwo IndexType = "cate"
+const (
+	IndexTypeOne   IndexType = "tag"
+	IndexTypeTwo   IndexType = "cate"
 	IndexTypeThree IndexType = "default"
 )
 
-
-func CommonData() (h gin.H,err error) {
+func CommonData() (h gin.H, err error) {
 	h = gin.H{
-		"themeJs": conf.Cnf.ThemeJs,
-		"themeCss": conf.Cnf.ThemeCss,
-		"themeImg": conf.Cnf.ThemeImg,
+		"themeJs":          conf.Cnf.ThemeJs,
+		"themeCss":         conf.Cnf.ThemeCss,
+		"themeImg":         conf.Cnf.ThemeImg,
 		"themeFancyboxCss": conf.Cnf.ThemeFancyboxCss,
-		"themeFancyboxJs": conf.Cnf.ThemeFancyboxJs,
-		"themeHLightCss": conf.Cnf.ThemeHLightCss,
-		"themeHLightJs": conf.Cnf.ThemeHLightJs,
-		"themeShareCss": conf.Cnf.ThemeShareCss,
-		"themeShareJs": conf.Cnf.ThemeShareJs,
-		"themeArchivesJs": conf.Cnf.ThemeArchivesJs,
+		"themeFancyboxJs":  conf.Cnf.ThemeFancyboxJs,
+		"themeHLightCss":   conf.Cnf.ThemeHLightCss,
+		"themeHLightJs":    conf.Cnf.ThemeHLightJs,
+		"themeShareCss":    conf.Cnf.ThemeShareCss,
+		"themeShareJs":     conf.Cnf.ThemeShareJs,
+		"themeArchivesJs":  conf.Cnf.ThemeArchivesJs,
 		"themeArchivesCss": conf.Cnf.ThemeArchivesCss,
-		"themeNiceImg": conf.Cnf.ThemeNiceImg,
-		"themeAllCss": conf.Cnf.ThemeAllCss,
-		"themeIndexImg": conf.Cnf.ThemeIndexImg,
-		"themeCateImg": conf.Cnf.ThemeCateImg,
-		"themeTagImg": conf.Cnf.ThemeTagImg,
-		"title": "",
+		"themeNiceImg":     conf.Cnf.ThemeNiceImg,
+		"themeAllCss":      conf.Cnf.ThemeAllCss,
+		"themeIndexImg":    conf.Cnf.ThemeIndexImg,
+		"themeCateImg":     conf.Cnf.ThemeCateImg,
+		"themeTagImg":      conf.Cnf.ThemeTagImg,
+		"title":            "",
 
 		"tem": "defaultList",
 	}
 	h["script"] = template.HTML(conf.Cnf.OtherScript)
-	cates,err := CateListBySort()
+	cates, err := CateListBySort()
 	if err != nil {
-		zgh.ZLog().Error("message","service.Index.CommonData","err",err.Error())
+		zgh.ZLog().Error("message", "service.Index.CommonData", "err", err.Error())
 		return
 	}
 	var catess []common.IndexCategory
-	for _,v := range cates {
+	for _, v := range cates {
 		c := common.IndexCategory{
 			Cates: v.Cates,
-			Html: template.HTML(v.Html),
+			Html:  template.HTML(v.Html),
 		}
-		catess = append(catess,c)
+		catess = append(catess, c)
 	}
 
-	tags,err := AllTags()
+	tags, err := AllTags()
 	if err != nil {
-		zgh.ZLog().Error("message","service.Index.CommonData","err",err.Error())
+		zgh.ZLog().Error("message", "service.Index.CommonData", "err", err.Error())
 		return
 	}
 
-	links,err := AllLink()
+	links, err := AllLink()
 	if err != nil {
-		zgh.ZLog().Error("message","service.Index.CommonData","err",err.Error())
+		zgh.ZLog().Error("message", "service.Index.CommonData", "err", err.Error())
 		return
 	}
 
-	system,err := IndexSystem()
+	system, err := IndexSystem()
 	if err != nil {
-		zgh.ZLog().Error("message","service.Index.CommonData","err",err.Error())
+		zgh.ZLog().Error("message", "service.Index.CommonData", "err", err.Error())
 		return
 	}
 	h["cates"] = catess
@@ -90,8 +90,7 @@ func CommonData() (h gin.H,err error) {
 	return
 }
 
-
-func IndexPost(page string,limit string,indexType IndexType,name string) (indexPostIndex common.IndexPostList,err error)  {
+func IndexPost(page string, limit string, indexType IndexType, name string) (indexPostIndex common.IndexPostList, err error) {
 	var postKey string
 	switch indexType {
 	case IndexTypeOne:
@@ -105,52 +104,51 @@ func IndexPost(page string,limit string,indexType IndexType,name string) (indexP
 		postKey = conf.Cnf.PostIndexKey
 	}
 
-	field := ":name:" + name + ":page:" + page + ":limit:"+limit
-	cacheRes,err := conf.CacheClient.HGet(postKey,field).Result()
+	field := ":name:" + name + ":page:" + page + ":limit:" + limit
+	cacheRes, err := conf.CacheClient.HGet(postKey, field).Result()
 	if err == redis.Nil {
 		// cache key does not exist
 		// set data to the cache what use the cache key
-		indexPostIndex,err := doCacheIndexPostList(postKey,field,indexType,name,page,limit)
+		indexPostIndex, err := doCacheIndexPostList(postKey, field, indexType, name, page, limit)
 		if err != nil {
-			zgh.ZLog().Error("message","service.index.IndexPost","err",err.Error())
-			return indexPostIndex,err
+			zgh.ZLog().Error("message", "service.index.IndexPost", "err", err.Error())
+			return indexPostIndex, err
 		}
-		return indexPostIndex,nil
+		return indexPostIndex, nil
 	} else if err != nil {
-		zgh.ZLog().Error("message","service.index.IndexPost","err",err.Error())
-		return indexPostIndex,err
+		zgh.ZLog().Error("message", "service.index.IndexPost", "err", err.Error())
+		return indexPostIndex, err
 	}
 
 	if cacheRes == "" {
 		// Data is  null
 		// set data to the cache what use the cache key
-		indexPostIndex,err := doCacheIndexPostList(postKey,field,indexType,name,page,limit)
+		indexPostIndex, err := doCacheIndexPostList(postKey, field, indexType, name, page, limit)
 		if err != nil {
-			zgh.ZLog().Error("message","service.index.IndexPost","err",err.Error())
-			return indexPostIndex,err
+			zgh.ZLog().Error("message", "service.index.IndexPost", "err", err.Error())
+			return indexPostIndex, err
 		}
-		return indexPostIndex,nil
+		return indexPostIndex, nil
 	}
 
-	err = json.Unmarshal([]byte(cacheRes),&indexPostIndex)
+	err = json.Unmarshal([]byte(cacheRes), &indexPostIndex)
 	if err != nil {
-		zgh.ZLog().Error("message","service.index.IndexPost","err",err.Error())
-		indexPostIndex,err := doCacheIndexPostList(postKey,field,indexType,name,page,limit)
+		zgh.ZLog().Error("message", "service.index.IndexPost", "err", err.Error())
+		indexPostIndex, err := doCacheIndexPostList(postKey, field, indexType, name, page, limit)
 		if err != nil {
-			zgh.ZLog().Error("message","service.index.IndexPost","err",err.Error())
-			return indexPostIndex,err
+			zgh.ZLog().Error("message", "service.index.IndexPost", "err", err.Error())
+			return indexPostIndex, err
 		}
-		return indexPostIndex,nil
+		return indexPostIndex, nil
 	}
 	return
 }
 
-
-func doCacheIndexPostList(cacheKey string,field string,indexType IndexType,name string,queryPage string,queryLimit string) (res common.IndexPostList,err error) {
-	limit,offset := common.Offset(queryPage,queryLimit)
-	queryPageInt,err := strconv.Atoi(queryPage)
+func doCacheIndexPostList(cacheKey string, field string, indexType IndexType, name string, queryPage string, queryLimit string) (res common.IndexPostList, err error) {
+	limit, offset := common.Offset(queryPage, queryLimit)
+	queryPageInt, err := strconv.Atoi(queryPage)
 	if err != nil {
-		zgh.ZLog().Error("message","service.index.doCacheIndexPostList","err",err.Error())
+		zgh.ZLog().Error("message", "service.index.doCacheIndexPostList", "err", err.Error())
 		return
 	}
 	var postList []*common.ConsolePostList
@@ -158,288 +156,288 @@ func doCacheIndexPostList(cacheKey string,field string,indexType IndexType,name 
 	switch indexType {
 	case IndexTypeOne:
 		tag := new(entity.ZTags)
-		_,err = conf.SqlServer.Where("Name = ?",name).Get(tag)
+		_, err = conf.SqlServer.Where("Name = ?", name).Get(tag)
 		if err != nil {
-			zgh.ZLog().Error("message","service.index.doCacheIndexPostList","err",err.Error())
+			zgh.ZLog().Error("message", "service.index.doCacheIndexPostList", "err", err.Error())
 			return
 		}
-		postList,err = PostTagList(tag.Id,limit,offset)
+		postList, err = PostTagList(tag.Id, limit, offset)
 		if err != nil {
-			zgh.ZLog().Error("message","service.index.doCacheIndexPostList","err",err.Error())
+			zgh.ZLog().Error("message", "service.index.doCacheIndexPostList", "err", err.Error())
 			return
 		}
-		postCount,err = PostTagListCount(tag.Id,limit,offset)
+		postCount, err = PostTagListCount(tag.Id, limit, offset)
 		if err != nil {
-			zgh.ZLog().Error("message","service.index.doCacheIndexPostList","err",err.Error())
+			zgh.ZLog().Error("message", "service.index.doCacheIndexPostList", "err", err.Error())
 			return
 		}
 	case IndexTypeTwo:
 		cate := new(entity.ZCategories)
-		_,err = conf.SqlServer.Where("Name = ?",name).Get(cate)
+		_, err = conf.SqlServer.Where("Name = ?", name).Get(cate)
 		if err != nil {
-			zgh.ZLog().Error("message","service.index.doCacheIndexPostList","err",err.Error())
+			zgh.ZLog().Error("message", "service.index.doCacheIndexPostList", "err", err.Error())
 			return
 		}
-		postList,err = PostCateList(cate.Id,limit,offset)
+		postList, err = PostCateList(cate.Id, limit, offset)
 		if err != nil {
-			zgh.ZLog().Error("message","service.index.doCacheIndexPostList","err",err.Error())
+			zgh.ZLog().Error("message", "service.index.doCacheIndexPostList", "err", err.Error())
 			return
 		}
-		postCount,err = PostCateListCount(cate.Id,limit,offset)
+		postCount, err = PostCateListCount(cate.Id, limit, offset)
 		if err != nil {
-			zgh.ZLog().Error("message","service.index.doCacheIndexPostList","err",err.Error())
+			zgh.ZLog().Error("message", "service.index.doCacheIndexPostList", "err", err.Error())
 			return
 		}
 	case IndexTypeThree:
-		postList,err = ConsolePostIndex(limit,offset,false)
+		postList, err = ConsolePostIndex(limit, offset, false)
 		if err != nil {
-			zgh.ZLog().Error("message","service.index.doCacheIndexPostList","err",err.Error())
+			zgh.ZLog().Error("message", "service.index.doCacheIndexPostList", "err", err.Error())
 			return
 		}
-		postCount,err = ConsolePostCount(limit,offset,false)
+		postCount, err = ConsolePostCount(limit, offset, false)
 		if err != nil {
-			zgh.ZLog().Error("message","service.index.doCacheIndexPostList","err",err.Error())
+			zgh.ZLog().Error("message", "service.index.doCacheIndexPostList", "err", err.Error())
 			return
 		}
 	default:
-		postList,err = ConsolePostIndex(limit,offset,false)
+		postList, err = ConsolePostIndex(limit, offset, false)
 		if err != nil {
-			zgh.ZLog().Error("message","service.index.doCacheIndexPostList","err",err.Error())
+			zgh.ZLog().Error("message", "service.index.doCacheIndexPostList", "err", err.Error())
 			return
 		}
 
-		postCount,err = ConsolePostCount(limit,offset,false)
+		postCount, err = ConsolePostCount(limit, offset, false)
 		if err != nil {
-			zgh.ZLog().Error("message","service.index.doCacheIndexPostList","err",err.Error())
+			zgh.ZLog().Error("message", "service.index.doCacheIndexPostList", "err", err.Error())
 			return
 		}
 	}
 
-	paginate := common.MyPaginate(postCount,limit,queryPageInt)
+	paginate := common.MyPaginate(postCount, limit, queryPageInt)
 
 	res = common.IndexPostList{
 		PostListArr: postList,
-		Paginate: paginate,
+		Paginate:    paginate,
 	}
 
-	jsonRes,err := json.Marshal(&res)
+	jsonRes, err := json.Marshal(&res)
 	if err != nil {
-		zgh.ZLog().Error("message","service.index.doCacheIndexPostList","err",err.Error())
+		zgh.ZLog().Error("message", "service.index.doCacheIndexPostList", "err", err.Error())
 		return
 	}
-	err = conf.CacheClient.HSet(cacheKey,field,jsonRes).Err()
+	err = conf.CacheClient.HSet(cacheKey, field, jsonRes).Err()
 	if err != nil {
-		zgh.ZLog().Error("message","service.index.doCacheIndexPostList","err",err.Error())
+		zgh.ZLog().Error("message", "service.index.doCacheIndexPostList", "err", err.Error())
 		return
 	}
 	return
 }
 
-func IndexPostDetail(postIdStr string) (postDetail common.IndexPostDetail,err error) {
+func IndexPostDetail(postIdStr string) (postDetail common.IndexPostDetail, err error) {
 	cacheKey := conf.Cnf.PostDetailIndexKey
 	field := ":post:id:" + postIdStr
 
-	postIdInt,err := strconv.Atoi(postIdStr)
+	postIdInt, err := strconv.Atoi(postIdStr)
 	if err != nil {
-		zgh.ZLog().Error("message","service.Index.IndexPostDetail","err",err.Error())
+		zgh.ZLog().Error("message", "service.Index.IndexPostDetail", "err", err.Error())
 		return
 	}
-	cacheRes,err := conf.CacheClient.HGet(cacheKey,field).Result()
+	cacheRes, err := conf.CacheClient.HGet(cacheKey, field).Result()
 	if err == redis.Nil {
 		// cache key does not exist
 		// set data to the cache what use the cache key
-		postDetail,err := doCacheIndexPostDetail(cacheKey,field,postIdInt)
+		postDetail, err := doCacheIndexPostDetail(cacheKey, field, postIdInt)
 		if err != nil {
-			zgh.ZLog().Error("message","service.index.IndexPostDetail","err",err.Error())
-			return postDetail,err
+			zgh.ZLog().Error("message", "service.index.IndexPostDetail", "err", err.Error())
+			return postDetail, err
 		}
-		return postDetail,nil
+		return postDetail, nil
 	} else if err != nil {
-		zgh.ZLog().Error("message","service.index.IndexPostDetail","err",err.Error())
-		return postDetail,err
+		zgh.ZLog().Error("message", "service.index.IndexPostDetail", "err", err.Error())
+		return postDetail, err
 	}
 
 	if cacheRes == "" {
 		// Data is  null
 		// set data to the cache what use the cache key
-		postDetail,err = doCacheIndexPostDetail(cacheKey,field,postIdInt)
+		postDetail, err = doCacheIndexPostDetail(cacheKey, field, postIdInt)
 		if err != nil {
-			zgh.ZLog().Error("message","service.index.IndexPostDetail","err",err.Error())
-			return postDetail,err
+			zgh.ZLog().Error("message", "service.index.IndexPostDetail", "err", err.Error())
+			return postDetail, err
 		}
-		return postDetail,nil
+		return postDetail, nil
 	}
 
-	err = json.Unmarshal([]byte(cacheRes),&postDetail)
+	err = json.Unmarshal([]byte(cacheRes), &postDetail)
 	if err != nil {
-		zgh.ZLog().Error("message","service.index.IndexPostDetail","err",err.Error())
-		postDetail,err = doCacheIndexPostDetail(cacheKey,field,postIdInt)
+		zgh.ZLog().Error("message", "service.index.IndexPostDetail", "err", err.Error())
+		postDetail, err = doCacheIndexPostDetail(cacheKey, field, postIdInt)
 		if err != nil {
-			zgh.ZLog().Error("message","service.index.IndexPostDetail","err",err.Error())
-			return postDetail,err
+			zgh.ZLog().Error("message", "service.index.IndexPostDetail", "err", err.Error())
+			return postDetail, err
 		}
-		return postDetail,nil
+		return postDetail, nil
 	}
 	return
 
 }
 
-func doCacheIndexPostDetail(cacheKey string,field string ,postIdInt int) (postDetail common.IndexPostDetail,err error) {
-	postDetail,err = IndexPostDetailDao(postIdInt)
+func doCacheIndexPostDetail(cacheKey string, field string, postIdInt int) (postDetail common.IndexPostDetail, err error) {
+	postDetail, err = IndexPostDetailDao(postIdInt)
 	if err != nil {
-		zgh.ZLog().Error("message","service.doCacheIndexPostDetail","err",err.Error())
+		zgh.ZLog().Error("message", "service.doCacheIndexPostDetail", "err", err.Error())
 		return
 	}
-	jsonRes,err := json.Marshal(&postDetail)
+	jsonRes, err := json.Marshal(&postDetail)
 	if err != nil {
-		zgh.ZLog().Error("message","service.index.doCacheIndexPostDetail","err",err.Error())
+		zgh.ZLog().Error("message", "service.index.doCacheIndexPostDetail", "err", err.Error())
 		return
 	}
-	err = conf.CacheClient.HSet(cacheKey,field,jsonRes).Err()
+	err = conf.CacheClient.HSet(cacheKey, field, jsonRes).Err()
 	if err != nil {
-		zgh.ZLog().Error("message","service.index.doCacheIndexPostDetail","err",err.Error())
+		zgh.ZLog().Error("message", "service.index.doCacheIndexPostDetail", "err", err.Error())
 		return
 	}
 	return
 }
 
 func PostViewAdd(postIdStr string) {
-	postIdInt,err := strconv.Atoi(postIdStr)
+	postIdInt, err := strconv.Atoi(postIdStr)
 	if err != nil {
-		zgh.ZLog().Error("message","service.Index.PostViewAdd","err",err.Error())
+		zgh.ZLog().Error("message", "service.Index.PostViewAdd", "err", err.Error())
 		return
 	}
-	_,err = conf.SqlServer.Where("post_id = ?",postIdInt).Incr("num").Update(entity.ZPostViews{})
+	_, err = conf.SqlServer.Where("post_id = ?", postIdInt).Incr("num").Update(entity.ZPostViews{})
 	if err != nil {
-		zgh.ZLog().Error("message","service.Index.PostViewAdd","err",err.Error())
+		zgh.ZLog().Error("message", "service.Index.PostViewAdd", "err", err.Error())
 		return
 	}
 	return
 }
 
-func PostArchives() (archivesList map[string][]*entity.ZPosts,err error) {
+func PostArchives() (archivesList map[string][]*entity.ZPosts, err error) {
 	cacheKey := conf.Cnf.ArchivesKey
 	field := ":all:"
 
-	cacheRes,err := conf.CacheClient.HGet(cacheKey,field).Result()
+	cacheRes, err := conf.CacheClient.HGet(cacheKey, field).Result()
 	if err == redis.Nil {
 		// cache key does not exist
 		// set data to the cache what use the cache key
-		archivesList,err := doCacheArchives(cacheKey,field)
+		archivesList, err := doCacheArchives(cacheKey, field)
 		if err != nil {
-			zgh.ZLog().Error("message","service.index.PostArchives","err",err.Error())
-			return archivesList,err
+			zgh.ZLog().Error("message", "service.index.PostArchives", "err", err.Error())
+			return archivesList, err
 		}
-		return archivesList,nil
+		return archivesList, nil
 	} else if err != nil {
-		zgh.ZLog().Error("message","service.index.PostArchives","err",err.Error())
-		return archivesList,err
+		zgh.ZLog().Error("message", "service.index.PostArchives", "err", err.Error())
+		return archivesList, err
 	}
 
 	if cacheRes == "" {
 		// Data is  null
 		// set data to the cache what use the cache key
-		archivesList,err := doCacheArchives(cacheKey,field)
+		archivesList, err := doCacheArchives(cacheKey, field)
 		if err != nil {
-			zgh.ZLog().Error("message","service.index.PostArchives","err",err.Error())
-			return archivesList,err
+			zgh.ZLog().Error("message", "service.index.PostArchives", "err", err.Error())
+			return archivesList, err
 		}
-		return archivesList,nil
+		return archivesList, nil
 	}
 
 	archivesList = make(map[string][]*entity.ZPosts)
-	err = json.Unmarshal([]byte(cacheRes),&archivesList)
+	err = json.Unmarshal([]byte(cacheRes), &archivesList)
 	if err != nil {
-		zgh.ZLog().Error("message","service.index.PostArchives","err",err.Error())
-		archivesList,err := doCacheArchives(cacheKey,field)
+		zgh.ZLog().Error("message", "service.index.PostArchives", "err", err.Error())
+		archivesList, err := doCacheArchives(cacheKey, field)
 		if err != nil {
-			zgh.ZLog().Error("message","service.index.PostArchives","err",err.Error())
-			return archivesList,err
+			zgh.ZLog().Error("message", "service.index.PostArchives", "err", err.Error())
+			return archivesList, err
 		}
-		return archivesList,nil
+		return archivesList, nil
 	}
 	return
 }
 
-func doCacheArchives(cacheKey string,field string) (archivesList map[string][]*entity.ZPosts,err error) {
-	posts := make([]*entity.ZPosts,0)
-	err = conf.SqlServer.Where("deleted_at IS NULL OR deleted_at = ?","0001-01-01 00:00:00").Desc("created_at").Find(&posts)
+func doCacheArchives(cacheKey string, field string) (archivesList map[string][]*entity.ZPosts, err error) {
+	posts := make([]*entity.ZPosts, 0)
+	err = conf.SqlServer.Where("deleted_at IS NULL OR deleted_at = ?", "0001-01-01 00:00:00").Desc("created_at").Find(&posts)
 	if err != nil {
-		zgh.ZLog().Error("message","service.Index.doCacheArchives","err",err.Error())
+		zgh.ZLog().Error("message", "service.Index.doCacheArchives", "err", err.Error())
 		return
 	}
 	archivesList = make(map[string][]*entity.ZPosts)
-	for _,v := range posts {
+	for _, v := range posts {
 		date := v.CreatedAt.Format("2006-01")
-		archivesList[date] = append(archivesList[date],v)
+		archivesList[date] = append(archivesList[date], v)
 	}
 
-	jsonRes,err := json.Marshal(&archivesList)
+	jsonRes, err := json.Marshal(&archivesList)
 	if err != nil {
-		zgh.ZLog().Error("message","service.index.doCacheArchives","err",err.Error())
+		zgh.ZLog().Error("message", "service.index.doCacheArchives", "err", err.Error())
 		return
 	}
-	err = conf.CacheClient.HSet(cacheKey,field,jsonRes).Err()
+	err = conf.CacheClient.HSet(cacheKey, field, jsonRes).Err()
 	if err != nil {
-		zgh.ZLog().Error("message","service.index.doCacheArchives","err",err.Error())
+		zgh.ZLog().Error("message", "service.index.doCacheArchives", "err", err.Error())
 		return
 	}
 	return
 }
 
-func PostRss() (rssList []*common.IndexRss,err error) {
+func PostRss() (rssList []*common.IndexRss, err error) {
 	cacheKey := conf.Cnf.ArchivesKey
 	field := ":rss:"
 
-	cacheRes,err := conf.CacheClient.HGet(cacheKey,field).Result()
+	cacheRes, err := conf.CacheClient.HGet(cacheKey, field).Result()
 	if err == redis.Nil {
 		// cache key does not exist
 		// set data to the cache what use the cache key
-		rssList,err := doCacheRss(cacheKey,field)
+		rssList, err := doCacheRss(cacheKey, field)
 		if err != nil {
-			zgh.ZLog().Error("message","service.index.PostRss","err",err.Error())
-			return rssList,err
+			zgh.ZLog().Error("message", "service.index.PostRss", "err", err.Error())
+			return rssList, err
 		}
-		return rssList,nil
+		return rssList, nil
 	} else if err != nil {
-		zgh.ZLog().Error("message","service.index.PostRss","err",err.Error())
-		return rssList,err
+		zgh.ZLog().Error("message", "service.index.PostRss", "err", err.Error())
+		return rssList, err
 	}
 
 	if cacheRes == "" {
 		// Data is  null
 		// set data to the cache what use the cache key
-		rssList,err := doCacheRss(cacheKey,field)
+		rssList, err := doCacheRss(cacheKey, field)
 		if err != nil {
-			zgh.ZLog().Error("message","service.index.PostRss","err",err.Error())
-			return rssList,err
+			zgh.ZLog().Error("message", "service.index.PostRss", "err", err.Error())
+			return rssList, err
 		}
-		return rssList,nil
+		return rssList, nil
 	}
 
-	err = json.Unmarshal([]byte(cacheRes),&rssList)
+	err = json.Unmarshal([]byte(cacheRes), &rssList)
 	if err != nil {
-		zgh.ZLog().Error("message","service.index.PostRss","err",err.Error())
-		rssList,err := doCacheRss(cacheKey,field)
+		zgh.ZLog().Error("message", "service.index.PostRss", "err", err.Error())
+		rssList, err := doCacheRss(cacheKey, field)
 		if err != nil {
-			zgh.ZLog().Error("message","service.index.PostRss","err",err.Error())
-			return rssList,err
+			zgh.ZLog().Error("message", "service.index.PostRss", "err", err.Error())
+			return rssList, err
 		}
-		return rssList,nil
+		return rssList, nil
 	}
 	return
 }
 
-func CommonRss() (feed *feeds.Feed,err error) {
-	res,err := PostRss()
+func CommonRss() (feed *feeds.Feed, err error) {
+	res, err := PostRss()
 	if err != nil {
-		zgh.ZLog().Error("message","Index.Archives","err",err.Error())
+		zgh.ZLog().Error("message", "Index.Archives", "err", err.Error())
 		return
 	}
 
-	system,err := IndexSystem()
+	system, err := IndexSystem()
 	if err != nil {
-		zgh.ZLog().Error("message","service.Index.CommonData","err",err.Error())
+		zgh.ZLog().Error("message", "service.Index.CommonData", "err", err.Error())
 		return
 	}
 
@@ -450,35 +448,35 @@ func CommonRss() (feed *feeds.Feed,err error) {
 		Author:      &feeds.Author{Name: conf.Cnf.Author, Email: conf.Cnf.Email},
 	}
 
-	for _,v := range res {
+	for _, v := range res {
 		idStr := strconv.Itoa(v.Id)
 		feedItem := &feeds.Item{
 			Title:       v.Title,
-			Link:        &feeds.Link{Href: conf.Cnf.AppUrl+"/detail/"+idStr},
+			Link:        &feeds.Link{Href: conf.Cnf.AppUrl + "/detail/" + idStr},
 			Author:      &feeds.Author{Name: conf.Cnf.Author, Email: conf.Cnf.Email},
 			Description: v.Summary,
 			Id:          idStr,
 			Updated:     v.UpdatedAt,
 			Created:     v.CreatedAt,
 		}
-		feed.Items = append(feed.Items,feedItem)
+		feed.Items = append(feed.Items, feedItem)
 	}
-	return feed,nil
+	return feed, nil
 }
 
-func doCacheRss(cacheKey string,field string) (rssList []*common.IndexRss,err error) {
-	posts := make([]*entity.ZPosts,0)
-	err = conf.SqlServer.Where("deleted_at IS NULL OR deleted_at = ?","0001-01-01 00:00:00").Desc("created_at").Find(&posts)
+func doCacheRss(cacheKey string, field string) (rssList []*common.IndexRss, err error) {
+	posts := make([]*entity.ZPosts, 0)
+	err = conf.SqlServer.Where("deleted_at IS NULL OR deleted_at = ?", "0001-01-01 00:00:00").Desc("created_at").Find(&posts)
 	if err != nil {
-		zgh.ZLog().Error("message","service.Index.doCacheRss","err",err.Error())
+		zgh.ZLog().Error("message", "service.Index.doCacheRss", "err", err.Error())
 		return
 	}
 	//cacheKey = make(map[string][]*entity.ZPosts)
-	for _,v := range posts {
+	for _, v := range posts {
 		user := new(entity.ZUsers)
-		user,err = GetUserById(v.UserId)
+		user, err = GetUserById(v.UserId)
 		if err != nil {
-			zgh.ZLog().Error("message","service.Index.doCacheRss","err",err.Error())
+			zgh.ZLog().Error("message", "service.Index.doCacheRss", "err", err.Error())
 			return
 		}
 		rl := &common.IndexRss{
@@ -490,17 +488,17 @@ func doCacheRss(cacheKey string,field string) (rssList []*common.IndexRss,err er
 			CreatedAt: v.CreatedAt,
 			UpdatedAt: v.UpdatedAt,
 		}
-		rssList = append(rssList,rl)
+		rssList = append(rssList, rl)
 	}
 
-	jsonRes,err := json.Marshal(&rssList)
+	jsonRes, err := json.Marshal(&rssList)
 	if err != nil {
-		zgh.ZLog().Error("message","service.index.doCacheRss","err",err.Error())
+		zgh.ZLog().Error("message", "service.index.doCacheRss", "err", err.Error())
 		return
 	}
-	err = conf.CacheClient.HSet(cacheKey,field,jsonRes).Err()
+	err = conf.CacheClient.HSet(cacheKey, field, jsonRes).Err()
 	if err != nil {
-		zgh.ZLog().Error("message","service.index.doCacheRss","err",err.Error())
+		zgh.ZLog().Error("message", "service.index.doCacheRss", "err", err.Error())
 		return
 	}
 	return

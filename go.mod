@@ -1,4 +1,4 @@
-module github.com/izghua/go-blog
+module github.com/thaoeu/pavment_management_system
 
 go 1.12
 

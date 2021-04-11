@@ -7,10 +7,11 @@
 package validate
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/izghua/go-blog/common"
-	"github.com/izghua/zgh/gin/api"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"github.com/izghua/zgh/gin/api"
+	"github.com/thaoeu/pavment_management_system/common"
 )
 
 type AuthRegisterV struct {
@@ -26,31 +27,31 @@ func (av *AuthRegisterV) MyValidate() gin.HandlerFunc {
 		}
 
 		reqValidate := &AuthRegister{
-			Email:json.Email,
-			Password:json.Password,
+			Email:    json.Email,
+			Password: json.Password,
 			UserName: json.UserName,
 		}
 		if b := appG.Validate(reqValidate); !b {
 			return
 		}
-		c.Set("json",json)
+		c.Set("json", json)
 		c.Next()
 	}
 }
 
 type AuthRegister struct {
 	UserName string `valid:"Required;MaxSize(30)"`
-	Email string `valid:"Required;Email"`
+	Email    string `valid:"Required;Email"`
 	Password string `valid:"Required;MaxSize(30)"`
 }
 
 func (av *AuthRegister) Message() map[string]int {
 	return map[string]int{
-		"Email.Required":407000000,
-		"Email.Email":407000001,
-		"Password.Required":407000002,
-		"Password.MaxSize":407000003,
-		"UserName.Required":407000012,
-		"UserName.MaxSize":407000013,
+		"Email.Required":    407000000,
+		"Email.Email":       407000001,
+		"Password.Required": 407000002,
+		"Password.MaxSize":  407000003,
+		"UserName.Required": 407000012,
+		"UserName.MaxSize":  407000013,
 	}
 }

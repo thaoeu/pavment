@@ -8,99 +8,100 @@ package service
 
 import (
 	"encoding/json"
-	"github.com/go-redis/redis"
-	"github.com/izghua/go-blog/common"
-	"github.com/izghua/go-blog/conf"
-	"github.com/izghua/go-blog/entity"
-	"github.com/izghua/zgh"
 	"time"
+
+	"github.com/go-redis/redis"
+	"github.com/izghua/zgh"
+	"github.com/thaoeu/pavment_management_system/common"
+	"github.com/thaoeu/pavment_management_system/conf"
+	"github.com/thaoeu/pavment_management_system/entity"
 )
 
-func GetSystemList() (system *entity.ZSystems,err error) {
+func GetSystemList() (system *entity.ZSystems, err error) {
 	system = new(entity.ZSystems)
-	_,err = conf.SqlServer.Get(system)
+	_, err = conf.SqlServer.Get(system)
 	if err != nil {
-		zgh.ZLog().Error("message","service.GetSystemList","err",err.Error())
+		zgh.ZLog().Error("message", "service.GetSystemList", "err", err.Error())
 		return
 	}
 	if system.Id <= 0 {
 		systemInsert := entity.ZSystems{
-			Theme: conf.Cnf.Theme,
-			Title:  conf.Cnf.Title,
-			Keywords:  conf.Cnf.Keywords,
+			Theme:        conf.Cnf.Theme,
+			Title:        conf.Cnf.Title,
+			Keywords:     conf.Cnf.Keywords,
 			Description:  conf.Cnf.Description,
-			RecordNumber:  conf.Cnf.RecordNumber,
+			RecordNumber: conf.Cnf.RecordNumber,
 		}
-		_,err = conf.SqlServer.Insert(systemInsert)
+		_, err = conf.SqlServer.Insert(systemInsert)
 		if err != nil {
-			zgh.ZLog().Error("message","service.GetSystemList","err",err.Error())
+			zgh.ZLog().Error("message", "service.GetSystemList", "err", err.Error())
 			return
 		}
-		_,err = conf.SqlServer.Get(system)
+		_, err = conf.SqlServer.Get(system)
 		if err != nil {
-			zgh.ZLog().Error("message","service.GetSystemList","err",err.Error())
+			zgh.ZLog().Error("message", "service.GetSystemList", "err", err.Error())
 			return
 		}
 	}
 	return
 }
 
-func SystemUpdate(sId int,ss common.ConsoleSystem) error {
+func SystemUpdate(sId int, ss common.ConsoleSystem) error {
 	systemUpdate := entity.ZSystems{
-		Title: ss.Title,
-		Keywords: ss.Keywords,
-		Description: ss.Description,
+		Title:        ss.Title,
+		Keywords:     ss.Keywords,
+		Description:  ss.Description,
 		RecordNumber: ss.RecordNumber,
-		Theme: ss.Theme,
+		Theme:        ss.Theme,
 	}
-	_,err := conf.SqlServer.Id(sId).Update(&systemUpdate)
+	_, err := conf.SqlServer.Id(sId).Update(&systemUpdate)
 	return err
 }
 
-func IndexSystem() (system *entity.ZSystems,err error) {
+func IndexSystem() (system *entity.ZSystems, err error) {
 	cacheKey := conf.Cnf.SystemIndexKey
-	cacheRes,err := conf.CacheClient.Get(cacheKey).Result()
+	cacheRes, err := conf.CacheClient.Get(cacheKey).Result()
 	if err == redis.Nil {
-		system,err := doCacheIndexSystem(cacheKey)
+		system, err := doCacheIndexSystem(cacheKey)
 		if err != nil {
-			zgh.ZLog().Info("message","service.IndexSystem","err",err.Error())
-			return system,err
+			zgh.ZLog().Info("message", "service.IndexSystem", "err", err.Error())
+			return system, err
 		}
-		return system,nil
+		return system, nil
 	} else if err != nil {
-		zgh.ZLog().Info("message","service.IndexSystem","err",err.Error())
-		return system,err
+		zgh.ZLog().Info("message", "service.IndexSystem", "err", err.Error())
+		return system, err
 	}
 
-	err = json.Unmarshal([]byte(cacheRes),&system)
+	err = json.Unmarshal([]byte(cacheRes), &system)
 	if err != nil {
-		zgh.ZLog().Error("message","service.IndexSystem","err",err.Error())
-		system,err = doCacheIndexSystem(cacheKey)
+		zgh.ZLog().Error("message", "service.IndexSystem", "err", err.Error())
+		system, err = doCacheIndexSystem(cacheKey)
 		if err != nil {
-			zgh.ZLog().Error("message","service.IndexSystem","err",err.Error())
-			return nil,err
+			zgh.ZLog().Error("message", "service.IndexSystem", "err", err.Error())
+			return nil, err
 		}
-		return system,nil
+		return system, nil
 	}
-	return system,nil
+	return system, nil
 }
 
-func doCacheIndexSystem(cacheKey string) (system *entity.ZSystems,err error) {
+func doCacheIndexSystem(cacheKey string) (system *entity.ZSystems, err error) {
 	system = new(entity.ZSystems)
-	_,err = conf.SqlServer.Get(system)
+	_, err = conf.SqlServer.Get(system)
 	if err != nil {
-		zgh.ZLog().Info("message","service.doCacheIndexSystem","err",err.Error())
-		return system,err
+		zgh.ZLog().Info("message", "service.doCacheIndexSystem", "err", err.Error())
+		return system, err
 	}
-	jsonRes,err := json.Marshal(&system)
+	jsonRes, err := json.Marshal(&system)
 	if err != nil {
-		zgh.ZLog().Error("message","service.doCacheIndexSystem","err",err.Error())
-		return system,err
+		zgh.ZLog().Error("message", "service.doCacheIndexSystem", "err", err.Error())
+		return system, err
 	}
-	err = conf.CacheClient.Set(cacheKey,jsonRes,time.Duration(conf.Cnf.DataCacheTimeDuration) * time.Hour).Err()
+	err = conf.CacheClient.Set(cacheKey, jsonRes, time.Duration(conf.Cnf.DataCacheTimeDuration)*time.Hour).Err()
 	if err != nil {
-		zgh.ZLog().Error("message","service.doCacheIndexSystem","err",err.Error())
-		return system,err
+		zgh.ZLog().Error("message", "service.doCacheIndexSystem", "err", err.Error())
+		return system, err
 	}
-	return system,nil
+	return system, nil
 }

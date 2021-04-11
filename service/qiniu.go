@@ -8,13 +8,13 @@ package service
 
 import (
 	"context"
-	"github.com/izghua/go-blog/conf"
+
 	"github.com/izghua/zgh"
 	"github.com/izghua/zgh/utils/alarm"
 	"github.com/qiniu/api.v7/auth/qbox"
 	"github.com/qiniu/api.v7/storage"
+	"github.com/thaoeu/pavment_management_system/conf"
 )
-
 
 // 自定义返回值结构体
 type MyPutRet struct {
@@ -29,11 +29,11 @@ type MyPutRet struct {
 // LocalFile is the local file, such as "./static/images/uploads/2.jpeg"
 // FileName is the name what  qiniu name as
 // The storage Zone is default
-func Qiniu(localFile string,fileName string) {
-	accessKey :=  conf.Cnf.QiNiuAccessKey
-	secretKey :=  conf.Cnf.QiNiuSecretKey
+func Qiniu(localFile string, fileName string) {
+	accessKey := conf.Cnf.QiNiuAccessKey
+	secretKey := conf.Cnf.QiNiuSecretKey
 	//localFile := "./static/images/uploads/2.jpeg"
-	bucket :=  conf.Cnf.QiNiuBucket
+	bucket := conf.Cnf.QiNiuBucket
 	key := fileName
 	putPolicy := storage.PutPolicy{
 		Scope: bucket,
@@ -42,7 +42,7 @@ func Qiniu(localFile string,fileName string) {
 	upToken := putPolicy.UploadToken(mac)
 
 	cfg := storage.Config{}
-	switch  conf.Cnf.QiNiuZone {
+	switch conf.Cnf.QiNiuZone {
 	case "HUABEI":
 		cfg.Zone = &storage.ZoneHuabei
 	case "HUADONG":
@@ -69,14 +69,12 @@ func Qiniu(localFile string,fileName string) {
 	}
 	err := formUploader.PutFile(context.Background(), &ret, upToken, key, localFile, &putExtra)
 	if err != nil {
-		zgh.ZLog().Error("message","service.QiNiu upload file","err",err.Error())
-		alarm.Alarm("文件上传七牛失败了,文件名是"+fileName)
+		zgh.ZLog().Error("message", "service.QiNiu upload file", "err", err.Error())
+		alarm.Alarm("文件上传七牛失败了,文件名是" + fileName)
 		return
 	}
 	//fmt.Println("234222",ret,"最后是谁啥")
 	//fmt.Println(ret.Key,"234222", ret.Hash,"最后是谁啥")
-	zgh.ZLog().Info("message","service.QiNiu upload file","end","succeed")
+	zgh.ZLog().Info("message", "service.QiNiu upload file", "end", "succeed")
 	return
 }
-
-

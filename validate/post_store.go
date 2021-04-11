@@ -7,17 +7,17 @@
 package validate
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/izghua/go-blog/common"
-	"github.com/izghua/zgh/gin/api"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"github.com/izghua/zgh/gin/api"
+	"github.com/thaoeu/pavment_management_system/common"
 )
 
 type PostStoreV struct {
 }
 
-
-func (pv *PostStoreV)MyValidate() gin.HandlerFunc {
+func (pv *PostStoreV) MyValidate() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		appG := api.Gin{C: c}
 		var json common.PostStore
@@ -28,31 +28,28 @@ func (pv *PostStoreV)MyValidate() gin.HandlerFunc {
 		}
 
 		reqValidate := &PostStore{
-			Title:json.Title,
-			Tags:json.Tags,
-			Summary:json.Summary,
+			Title:   json.Title,
+			Tags:    json.Tags,
+			Summary: json.Summary,
 		}
 		if b := appG.Validate(reqValidate); !b {
 			return
 		}
-		c.Set("json",json)
+		c.Set("json", json)
 		c.Next()
 	}
 }
 
-
-
 type PostStore struct {
 	Title string `valid:"Required"`
-	Tags []int
+	Tags  []int
 	//Category int `valid:Required`
 	Summary string `valid:"Required;"`
 }
 
-
 func (c *PostStore) Message() map[string]int {
 	return map[string]int{
-		"Title.Required":401000000,
-		"Summary.Required":401000003,
+		"Title.Required":   401000000,
+		"Summary.Required": 401000003,
 	}
 }
